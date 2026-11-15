@@ -1,0 +1,55 @@
+# FILE:    .github/workflows/publish.yml
+# CREATED: 2026-11-16 02:00 +03
+# TASK:    int-node-boilerplates
+# WHAT:    On a v* tag (or a manual run naming an existing tag): tests, build, npm publish with provenance, then a
+#          GitHub release with the CHANGELOG section. Steps skip what is already done, so a stopped run can be finished.
+# WHY:     Same release path as kwtsms-mcp. First publish uses the NPM_TOKEN secret once; then npm trusted publishing
+#          (OIDC) and the secret is deleted.
+name: Publish to npm
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to finish publishing, for example v0.1.0'
+        required: true
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@^11.5.1
+      - run: npm ci
+      - run: npm test
+      - name: Version matches the tag
+        run: test "v$(node -p "require('./packages/core/package.json').version")" = "$TAG"
+      - name: npm publish (skipped when npm already has this version)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          V="${TAG#v}"
+          if npm view "kwtsms-otp@$V" version >/dev/null 2>&1; then echo "npm already has $V"; exit 0; fi
+          npm publish -w kwtsms-otp --access public --provenance --ignore-scripts
+      - name: GitHub release with the CHANGELOG section
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${TAG#v}"
+          if gh release view "$TAG" >/dev/null 2>&1; then echo "release $TAG exists"; exit 0; fi
+          awk "/^## \\[${V}\\]/{f=1; next} /^## \\[/{if(f) exit} f{print}" packages/core/CHANGELOG.md > /tmp/notes.md
+          gh release create "$TAG" --title "$TAG" --latest --notes-file /tmp/notes.md

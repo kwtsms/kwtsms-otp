@@ -1,0 +1,12 @@
+# 2026-11-16 02:00 +03: ignore list per Boss spec, task int-node-boilerplates
+node_modules
+dist
+.env*
+.claude/
+CLAUDE.md
+docs/
+*.log
+.remember/
+napkin.md
+*.db
+*.tsbuildinfo

@@ -1,0 +1,27 @@
+{
+  "name": "kwtsms-otp-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "kwtsms-otp monorepo: packages/core (npm kwtsms-otp) and starter (Hono app for Node, Bun and Workers)",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": ["packages/core", "starter"],
+  "scripts": {
+    "build": "npm run build -w kwtsms-otp",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p starter/tsconfig.worker.json",
+    "test": "npm run build && vitest run",
+    "check": "npm run lint && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261115.1",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.15.0",
+    "tsup": "^9.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  },
+  "engines": { "node": ">=20" }
+}
