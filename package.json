@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build -w kwtsms-otp",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p starter/tsconfig.worker.json",
+    "typecheck": "npm run build && tsc --noEmit && tsc --noEmit -p starter/tsconfig.worker.json",
     "test": "npm run build && vitest run",
     "check": "npm run lint && npm run typecheck && npm test"
   },
