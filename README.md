@@ -10,6 +10,8 @@
 
 SMS one-time codes (OTP) for Node, Bun and Cloudflare Workers, sent through kwtSMS, the Kuwaiti SMS gateway. One repo, two parts:
 
+kwtSMS for developers: [kwtsms.com/developers.html](https://www.kwtsms.com/developers.html)
+
 - `packages/core`: the npm package `kwtsms-otp`. `send` and `verify` with hashed codes, 3 attempts, cooldown, rate limits, country allowlist. Web APIs only.
 - `starter/`: a small [Hono](https://hono.dev) app on top: `POST /otp/send`, `POST /otp/verify` and three English/Arabic screens. Runs on Node, Bun and Workers from one codebase.
 
